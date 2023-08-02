@@ -3,6 +3,17 @@ This is a repository for receiving new csv file detection from Sftp store
 
 ## Prequisites
 python 3.8 & django
+```
+python -m venv venv
+source ./venv/bin/activate
+python -m pip install -r ./sftp_test/requirement.txt
+```
+
+## Run Server
+
+```
+python mamage.py runserver
+```
 
 ## Custom setting
 
