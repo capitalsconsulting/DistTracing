@@ -129,12 +129,20 @@ SFTP_USERNAME = 'bbonesource.sftponesource'
 SFTP_PASSWORD = 'K12X06IzJucyBqpfi76GgdV3v4fSZQHi'
 SFTP_REMOTE_DIR = '/'
 
-MEDIA_ROOT='sftp-files/'
+
+SFTP_HOST2 = 'edi.temegholdings.com'
+SFTP_USERNAME2 = 'BetaBionics'
+SFTP_PASSWORD2 = '$alesforceSFTPGEMCORE007'
+SFTP_REMOTE_DIR2 = '/Beta_Bionics/Outgoing/'
+
+MEDIA_ROOT='/home/ubuntu/sftp-files'
+
+MEDIA_ROOT2='/home/ubuntu/sftp-files2'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'devilprogrammer090@gmail.com'
-EMAIL_HOST_PASSWORD = 'xpaenpqxdeuzchlp'
+EMAIL_HOST_USER = 'pete@capitalsconsulting.com'
+EMAIL_HOST_PASSWORD = 'tmppfpoigiapxsdg'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
