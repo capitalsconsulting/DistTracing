@@ -134,11 +134,15 @@ SFTP_HOST2 = 'edi.temegholdings.com'
 SFTP_USERNAME2 = 'BetaBionics'
 SFTP_PASSWORD2 = '$alesforceSFTPGEMCORE007'
 SFTP_REMOTE_DIR2 = '/Beta_Bionics/Outgoing/'
+SFTP_REMOTE_TMP_DIR2 = '/processed_betabionics/'
 
 SFTP_HOST3 = 'sftpsalesforce.blob.core.windows.net'
 SFTP_USERNAME3 = 'sftpsalesforce.sftpsalesforce'
 SFTP_PASSWORD3 = '1NQjRsyN5DXsOK2fp8s9IqmcgFwKqq4g'
 SFTP_REMOTE_DIR3 = '/Byram/'
+
+
+SFTP_REMOTE_DIR4 = '/PremierKids/'
 
 MEDIA_ROOT='/home/ubuntu/sftp-files'
 
