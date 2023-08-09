@@ -135,9 +135,16 @@ SFTP_USERNAME2 = 'BetaBionics'
 SFTP_PASSWORD2 = '$alesforceSFTPGEMCORE007'
 SFTP_REMOTE_DIR2 = '/Beta_Bionics/Outgoing/'
 
+SFTP_HOST3 = 'sftpsalesforce.blob.core.windows.net'
+SFTP_USERNAME3 = 'sftpsalesforce.sftpsalesforce'
+SFTP_PASSWORD3 = '1NQjRsyN5DXsOK2fp8s9IqmcgFwKqq4g'
+SFTP_REMOTE_DIR3 = '/Byram/'
+
 MEDIA_ROOT='/home/ubuntu/sftp-files'
 
 MEDIA_ROOT2='/home/ubuntu/sftp-files2'
+
+MEDIA_ROOT3='/home/ubuntu/sftp-files3'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'

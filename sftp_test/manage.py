@@ -3,26 +3,16 @@
 import os
 import sys
 from django.conf import settings
-from background_task import background
 import pysftp
 import time
 from django.core.mail import EmailMessage
-import asyncio
 import threading
+import csv
+import fileinput
+import io
 
-email = EmailMessage(
-    subject='OneSource',
-    body='New File Received',
-    from_email='pete@capitalsconsulting.com',
-    to=['distributorsubmission@k-1c80vq6gka4vsdayfbc3rszgm8s46rwd2iyub7xcjmeakewsxj.46-zomweai.na210.apex.salesforce.com'],
-)
-
-email2 = EmailMessage(
-    subject='Edwards',
-    body='New File Received',
-    from_email='pete@capitalsconsulting.com',
-    to=['distributorsubmission@k-1c80vq6gka4vsdayfbc3rszgm8s46rwd2iyub7xcjmeakewsxj.46-zomweai.na210.apex.salesforce.com'],
-)
+def strip_string(string):
+    return ''.join(string.splitlines())
 
 def track_1():
     cnopts = pysftp.CnOpts()
@@ -36,6 +26,12 @@ def track_1():
         sftp.cwd(settings.SFTP_REMOTE_DIR)
 
         while True:
+            email = EmailMessage(
+                subject='OneSource',
+                body='New File Received',
+                from_email='pete@capitalsconsulting.com',
+                to=['distributorsubmission@k-1c80vq6gka4vsdayfbc3rszgm8s46rwd2iyub7xcjmeakewsxj.46-zomweai.na210.apex.salesforce.com'],
+            )
             files = sftp.listdir()
             for filename in files:
                 
@@ -46,12 +42,27 @@ def track_1():
                     if not os.path.exists(local_filepath):  # Download only if the file doesn't exist locally
                         print("> email sending...")
                         sftp.get(remote_filepath, local_filepath)
+                        
+                        data = []
+                        with open(local_filepath, 'r') as file:
+                            reader = csv.reader(file)
+                            for row in reader:
+                                updated_row = [
+                                    strip_string(field).replace("\r\n", " ").replace("\n", "").replace('€', '\\u20AC').replace('á', '\\u00E1').replace('Ä', '').replace('¢','').replace('ì','').replace('*','').replace(';','').replace(':','').replace('~','').replace('°','').replace('ß','').replace('ö','').replace('ô','').replace('ó','').replace('ò','').replace('Ç','').replace('ü','').replace('é','').replace('â','').replace('ä','').replace('à','').replace('å','').replace('ç','').replace('ê','').replace('ë','').replace('è','').replace('ï','').replace('î','').replace('ì','').replace('æ','').replace('Æ','').replace('ö','').replace('ò','').replace('û','').replace('ù','').replace('ÿ','').replace('¢','').replace('£','').replace('¥','').replace('ƒ','').replace('á','').replace('í','').replace('ó','').replace('ú','').replace('ñ','').replace('Ñ','').replace('°','').replace('·','').replace('²','').replace('Ÿ','').replace('©','').replace('®','').replace('À','').replace('Á','').replace('Â','').replace('Ã','').replace('Ä','').replace('Å','').replace('È','').replace('É','').replace('Ê','').replace('Ë','').replace('Ì','').replace('Í','').replace('Î','').replace('Ï','').replace('Ð','').replace('Ò','').replace('Ó','').replace('Ô','').replace('Õ','').replace('Ö','').replace('×','').replace('Ø','').replace('Ù','').replace('Ú','').replace('Û','').replace('Ü','').replace('Ý','').replace('Þ','').replace('ã','').replace('ð','').replace('õ','').replace(']','').replace('*','').replace(',','') for field in row]
+                                data.append(updated_row)
+
+                        with open(local_filepath, "w", newline='') as myfile:
+
+                            writer = csv.writer(myfile)
+                            for row in data:
+                                writer.writerow(row)
+                        
                         email.attach_file(local_filepath)
-                        email.send()
                         # Perform further processing on the downloaded file if needed
                 else:
                     print("> extra files ", filename)
-
+            if len(email.attachments) > 0:
+                email.send()
             # Sleep for some time before checking for new files again
             time.sleep(10)  # Adjust the sleep time as per your requirements
 
@@ -69,21 +80,112 @@ def track_2():
 
         while True:
             files = sftp.listdir()
+            email2 = EmailMessage(
+                subject='Edwards',
+                body='New File Received',
+                from_email='pete@capitalsconsulting.com',
+                to=['distributorsubmission@k-1c80vq6gka4vsdayfbc3rszgm8s46rwd2iyub7xcjmeakewsxj.46-zomweai.na210.apex.salesforce.com'],
+            )
+
             for filename in files:
                 
                 if filename not in ['.', '..'] and filename.find('.csv') != -1:
-                    print(" >> csv file ", filename)
+                    print("  >> csv file ", filename)
                     local_filepath = os.path.join(settings.MEDIA_ROOT2, filename)
                     remote_filepath = os.path.join(sftp.getcwd(), filename)
                     if not os.path.exists(local_filepath):  # Download only if the file doesn't exist locally
-                        print(" >> email sending...")
+                        print("  >> email sending...")
                         sftp.get(remote_filepath, local_filepath)
+                        
+                        data = []
+                        with open(local_filepath, "r") as file:
+                            reader = csv.reader(file)
+                            for row in reader:
+                                updated_row = [
+                                    strip_string(field).replace("\r\n", " ").replace("\n", "").replace('€', '\\u20AC').replace('á', '\\u00E1').replace('Ä', '').replace('¢','').replace('ì','').replace('*','').replace(';','').replace(':','').replace('~','').replace('°','').replace('ß','').replace('ö','').replace('ô','').replace('ó','').replace('ò','').replace('Ç','').replace('ü','').replace('é','').replace('â','').replace('ä','').replace('à','').replace('å','').replace('ç','').replace('ê','').replace('ë','').replace('è','').replace('ï','').replace('î','').replace('ì','').replace('æ','').replace('Æ','').replace('ö','').replace('ò','').replace('û','').replace('ù','').replace('ÿ','').replace('¢','').replace('£','').replace('¥','').replace('ƒ','').replace('á','').replace('í','').replace('ó','').replace('ú','').replace('ñ','').replace('Ñ','').replace('°','').replace('·','').replace('²','').replace('Ÿ','').replace('©','').replace('®','').replace('À','').replace('Á','').replace('Â','').replace('Ã','').replace('Ä','').replace('Å','').replace('È','').replace('É','').replace('Ê','').replace('Ë','').replace('Ì','').replace('Í','').replace('Î','').replace('Ï','').replace('Ð','').replace('Ò','').replace('Ó','').replace('Ô','').replace('Õ','').replace('Ö','').replace('×','').replace('Ø','').replace('Ù','').replace('Ú','').replace('Û','').replace('Ü','').replace('Ý','').replace('Þ','').replace('ã','').replace('ð','').replace('õ','').replace(']','').replace('*','').replace(',','') for field in row]
+
+                                data.append(updated_row)
+                        
+                        # with fileinput.FileInput(files=local_filepath, inplace=True, mode='rU') as file:
+                        with open(local_filepath, "w", newline='') as myfile:
+
+                            writer = csv.writer(myfile)
+                            for row in data:
+                                writer.writerow(row)
+
                         email2.attach_file(local_filepath)
-                        email2.send()
+                        
                         # Perform further processing on the downloaded file if needed
                 else:
-                    print(" >> extra files ", filename)
+                    print("  >> extra files ", filename)
+            
+            if len(email2.attachments) > 0:
+                email2.send()
+            # Sleep for some time before checking for new files again
+            time.sleep(10)  # Adjust the sleep time as per your requirements
 
+def track_3():
+    print(">>>>>>>>>> function 3 is running...")
+    cnopts = pysftp.CnOpts()
+    cnopts.hostkeys = None  # Disable host key verification
+    with pysftp.Connection(
+        settings.SFTP_HOST3,
+        username=settings.SFTP_USERNAME3,
+        password=settings.SFTP_PASSWORD3,
+        cnopts=cnopts
+    ) as sftp:
+        sftp.cwd(settings.SFTP_REMOTE_DIR3)
+
+        while True:
+            email3 = EmailMessage(
+                subject='Adapthealth',
+                body='New File Received',
+                from_email='pete@capitalsconsulting.com',
+                to=['distributorsubmission@k-1c80vq6gka4vsdayfbc3rszgm8s46rwd2iyub7xcjmeakewsxj.46-zomweai.na210.apex.salesforce.com'],
+            )
+            files = sftp.listdir()
+            for filename in files:
+                
+                if filename not in ['.', '..'] and filename.find('.csv') != -1:
+                    print("    >> csv file ", filename)
+                    local_filepath = os.path.join(settings.MEDIA_ROOT3, filename)
+                    remote_filepath = os.path.join(sftp.getcwd(), filename)
+                    if not os.path.exists(local_filepath):  # Download only if the file doesn't exist locally
+                        print("    >> email sending...")
+                        sftp.get(remote_filepath, local_filepath)
+                        
+                        data = []
+                        with open(local_filepath, "r") as file:
+                            reader = csv.reader(file)
+                            for row in reader:
+                                updated_row = [
+                                    strip_string(field).replace("\r\n", " ").replace("\n", "").replace('€', '\\u20AC').replace('á', '\\u00E1').replace('Ä', '').replace('¢','').replace('ì','').replace('*','').replace(';','').replace(':','').replace('~','').replace('°','').replace('ß','').replace('ö','').replace('ô','').replace('ó','').replace('ò','').replace('Ç','').replace('ü','').replace('é','').replace('â','').replace('ä','').replace('à','').replace('å','').replace('ç','').replace('ê','').replace('ë','').replace('è','').replace('ï','').replace('î','').replace('ì','').replace('æ','').replace('Æ','').replace('ö','').replace('ò','').replace('û','').replace('ù','').replace('ÿ','').replace('¢','').replace('£','').replace('¥','').replace('ƒ','').replace('á','').replace('í','').replace('ó','').replace('ú','').replace('ñ','').replace('Ñ','').replace('°','').replace('·','').replace('²','').replace('Ÿ','').replace('©','').replace('®','').replace('À','').replace('Á','').replace('Â','').replace('Ã','').replace('Ä','').replace('Å','').replace('È','').replace('É','').replace('Ê','').replace('Ë','').replace('Ì','').replace('Í','').replace('Î','').replace('Ï','').replace('Ð','').replace('Ò','').replace('Ó','').replace('Ô','').replace('Õ','').replace('Ö','').replace('×','').replace('Ø','').replace('Ù','').replace('Ú','').replace('Û','').replace('Ü','').replace('Ý','').replace('Þ','').replace('ã','').replace('ð','').replace('õ','').replace(']','').replace('*','').replace(',','') for field in row]
+
+                                data.append(updated_row)
+                        
+                        # with fileinput.FileInput(files=local_filepath, inplace=True, mode='rU') as file:
+                        with open(local_filepath, "w", newline='') as myfile:
+
+                            writer = csv.writer(myfile)
+                            for row in data:
+                                writer.writerow(row)
+
+                        # Opening our text file in write only
+                        # mode to write the replaced content
+                        # with open(local_filepath, 'w') as file:
+                            # Writing the replaced data in our
+                            # text file
+                            # file.write(data)
+
+                        email3.attach_file(local_filepath)
+                        
+                        # Perform further processing on the downloaded file if needed
+                else:
+                    print("    >> extra files ", filename)
+            print("len(email3.attachments) ", len(email3.attachments))
+            if len(email3.attachments) > 0:
+                print(" XXXX email sent XXXXX ")
+                email3.send()
             # Sleep for some time before checking for new files again
             time.sleep(10)  # Adjust the sleep time as per your requirements
 
@@ -91,12 +193,14 @@ def track_2():
 def monitor_sftp_server():
     # SFTP connection credentials
    
-   t1 = threading.Thread(target=track_1)
-   t1.start()
+    t1 = threading.Thread(target=track_1)
+    t1.start()
 
-   t2 = threading.Thread(target=track_2)
-   t2.start()
+    t2 = threading.Thread(target=track_2)
+    t2.start()
 
+    t3 = threading.Thread(target=track_3)
+    t3.start()
 
     # tasks = []
 
