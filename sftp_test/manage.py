@@ -39,24 +39,29 @@ def track_1():
                 if filename not in ['.', '..'] and filename.find('.csv') != -1:
                     print("> csv file ", filename)
                     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
+                    
                     local_filepath = os.path.join(settings.MEDIA_ROOT, filename)
                     remote_filepath = os.path.join(sftp.getcwd(), filename)
-                    new_remote_filepath = os.path.join(sftp.getcwd()+"/processed/", filename[:-4]+now+'.csv')
-
+                    new_remote_filepath = os.path.join(sftp.getcwd()+"processed/", filename[:-4]+now+'.csv')
+                    print(" new_remote_filepath ", new_remote_filepath)
                     if not os.path.exists(local_filepath):  # Download only if the file doesn't exist locally
                         print("> email sending...")
                         sftp.get(remote_filepath, local_filepath)
                         
                         data = []
-                        with open(local_filepath, 'r') as file:
+                        with open(local_filepath, 'r', errors='ignore') as file:
                             reader = csv.reader(file)
-                            for row in reader:
-                                updated_row = [
-                                    strip_string(field).replace("\r\n", " ").replace("\n", "").replace('€', '\\u20AC').replace('á', '\\u00E1').replace('Ä', '').replace('¢','').replace('ì','').replace('*','').replace(';','').replace(':','').replace('~','').replace('°','').replace('ß','').replace('ö','').replace('ô','').replace('ó','').replace('ò','').replace('Ç','').replace('ü','').replace('é','').replace('â','').replace('ä','').replace('à','').replace('å','').replace('ç','').replace('ê','').replace('ë','').replace('è','').replace('ï','').replace('î','').replace('ì','').replace('æ','').replace('Æ','').replace('ö','').replace('ò','').replace('û','').replace('ù','').replace('ÿ','').replace('¢','').replace('£','').replace('¥','').replace('ƒ','').replace('á','').replace('í','').replace('ó','').replace('ú','').replace('ñ','').replace('Ñ','').replace('°','').replace('·','').replace('²','').replace('Ÿ','').replace('©','').replace('®','').replace('À','').replace('Á','').replace('Â','').replace('Ã','').replace('Ä','').replace('Å','').replace('È','').replace('É','').replace('Ê','').replace('Ë','').replace('Ì','').replace('Í','').replace('Î','').replace('Ï','').replace('Ð','').replace('Ò','').replace('Ó','').replace('Ô','').replace('Õ','').replace('Ö','').replace('×','').replace('Ø','').replace('Ù','').replace('Ú','').replace('Û','').replace('Ü','').replace('Ý','').replace('Þ','').replace('ã','').replace('ð','').replace('õ','').replace(']','').replace('*','').replace(',','') for field in row]
-                                data.append(updated_row)
 
-                        with open(local_filepath, "w", newline='') as myfile:
+                            for row in reader:
+                                try:
+                                    updated_row = [
+                                    strip_string(field).replace("\r\n", " ").replace("\n", "").replace('€', '\\u20AC').replace('á', '\\u00E1').replace('Ä', '').replace('¢','').replace('ì','').replace('*','').replace(';','').replace(':','').replace('~','').replace('°','').replace('ß','').replace('ö','').replace('ô','').replace('ó','').replace('ò','').replace('Ç','').replace('ü','').replace('é','').replace('â','').replace('ä','').replace('à','').replace('å','').replace('ç','').replace('ê','').replace('ë','').replace('è','').replace('ï','').replace('î','').replace('ì','').replace('æ','').replace('Æ','').replace('ö','').replace('ò','').replace('û','').replace('ù','').replace('ÿ','').replace('¢','').replace('£','').replace('¥','').replace('ƒ','').replace('á','').replace('í','').replace('ó','').replace('ú','').replace('ñ','').replace('Ñ','').replace('°','').replace('·','').replace('²','').replace('Ÿ','').replace('©','').replace('®','').replace('À','').replace('Á','').replace('Â','').replace('Ã','').replace('Ä','').replace('Å','').replace('È','').replace('É','').replace('Ê','').replace('Ë','').replace('Ì','').replace('Í','').replace('Î','').replace('Ï','').replace('Ð','').replace('Ò','').replace('Ó','').replace('Ô','').replace('Õ','').replace('Ö','').replace('×','').replace('Ø','').replace('Ù','').replace('Ú','').replace('Û','').replace('Ü','').replace('Ý','').replace('Þ','').replace('ã','').replace('ð','').replace('õ','').replace(']','').replace('*','').replace(',','') for field in row]
+                                    data.append(updated_row)
+                                except UnicodeDecodeError:
+                                    data.append(row)
+                                    continue    
+
+                        with open(local_filepath, "w", newline='', errors='ignore') as myfile:
 
                             writer = csv.writer(myfile)
                             for row in data:
@@ -109,16 +114,20 @@ def track_2():
                         sftp.remove(remote_filepath)
 
                         data = []
-                        with open(local_filepath, "r") as file:
+                        with open(local_filepath, "r", errors='ignore') as file:
                             reader = csv.reader(file)
                             for row in reader:
-                                updated_row = [
-                                    strip_string(field).replace("\r\n", " ").replace("\n", "").replace('€', '\\u20AC').replace('á', '\\u00E1').replace('Ä', '').replace('¢','').replace('ì','').replace('*','').replace(';','').replace(':','').replace('~','').replace('°','').replace('ß','').replace('ö','').replace('ô','').replace('ó','').replace('ò','').replace('Ç','').replace('ü','').replace('é','').replace('â','').replace('ä','').replace('à','').replace('å','').replace('ç','').replace('ê','').replace('ë','').replace('è','').replace('ï','').replace('î','').replace('ì','').replace('æ','').replace('Æ','').replace('ö','').replace('ò','').replace('û','').replace('ù','').replace('ÿ','').replace('¢','').replace('£','').replace('¥','').replace('ƒ','').replace('á','').replace('í','').replace('ó','').replace('ú','').replace('ñ','').replace('Ñ','').replace('°','').replace('·','').replace('²','').replace('Ÿ','').replace('©','').replace('®','').replace('À','').replace('Á','').replace('Â','').replace('Ã','').replace('Ä','').replace('Å','').replace('È','').replace('É','').replace('Ê','').replace('Ë','').replace('Ì','').replace('Í','').replace('Î','').replace('Ï','').replace('Ð','').replace('Ò','').replace('Ó','').replace('Ô','').replace('Õ','').replace('Ö','').replace('×','').replace('Ø','').replace('Ù','').replace('Ú','').replace('Û','').replace('Ü','').replace('Ý','').replace('Þ','').replace('ã','').replace('ð','').replace('õ','').replace(']','').replace('*','').replace(',','') for field in row]
+                                try:
+                                    updated_row = [
+                                        strip_string(field).replace("\r\n", " ").replace("\n", "").replace('€', '\\u20AC').replace('á', '\\u00E1').replace('Ä', '').replace('¢','').replace('ì','').replace('*','').replace(';','').replace(':','').replace('~','').replace('°','').replace('ß','').replace('ö','').replace('ô','').replace('ó','').replace('ò','').replace('Ç','').replace('ü','').replace('é','').replace('â','').replace('ä','').replace('à','').replace('å','').replace('ç','').replace('ê','').replace('ë','').replace('è','').replace('ï','').replace('î','').replace('ì','').replace('æ','').replace('Æ','').replace('ö','').replace('ò','').replace('û','').replace('ù','').replace('ÿ','').replace('¢','').replace('£','').replace('¥','').replace('ƒ','').replace('á','').replace('í','').replace('ó','').replace('ú','').replace('ñ','').replace('Ñ','').replace('°','').replace('·','').replace('²','').replace('Ÿ','').replace('©','').replace('®','').replace('À','').replace('Á','').replace('Â','').replace('Ã','').replace('Ä','').replace('Å','').replace('È','').replace('É','').replace('Ê','').replace('Ë','').replace('Ì','').replace('Í','').replace('Î','').replace('Ï','').replace('Ð','').replace('Ò','').replace('Ó','').replace('Ô','').replace('Õ','').replace('Ö','').replace('×','').replace('Ø','').replace('Ù','').replace('Ú','').replace('Û','').replace('Ü','').replace('Ý','').replace('Þ','').replace('ã','').replace('ð','').replace('õ','').replace(']','').replace('*','').replace(',','') for field in row]
 
-                                data.append(updated_row)
+                                    data.append(updated_row)
+                                except UnicodeDecodeError:
+                                   data.append(row)
+                                   continue
                         
                         # with fileinput.FileInput(files=local_filepath, inplace=True, mode='rU') as file:
-                        with open(local_filepath, "w", newline='') as myfile:
+                        with open(local_filepath, "w", newline='', errors='ignore') as myfile:
 
                             writer = csv.writer(myfile)
                             for row in data:
@@ -185,16 +194,20 @@ def track_3():
                         sftp.get(remote_filepath, local_filepath)
                         
                         data = []
-                        with open(local_filepath, "r") as file:
+                        with open(local_filepath, "r", errors='ignore') as file:
                             reader = csv.reader(file)
                             for row in reader:
-                                updated_row = [
-                                    strip_string(field).replace("\r\n", " ").replace("\n", "").replace('€', '\\u20AC').replace('á', '\\u00E1').replace('Ä', '').replace('¢','').replace('ì','').replace('*','').replace(';','').replace(':','').replace('~','').replace('°','').replace('ß','').replace('ö','').replace('ô','').replace('ó','').replace('ò','').replace('Ç','').replace('ü','').replace('é','').replace('â','').replace('ä','').replace('à','').replace('å','').replace('ç','').replace('ê','').replace('ë','').replace('è','').replace('ï','').replace('î','').replace('ì','').replace('æ','').replace('Æ','').replace('ö','').replace('ò','').replace('û','').replace('ù','').replace('ÿ','').replace('¢','').replace('£','').replace('¥','').replace('ƒ','').replace('á','').replace('í','').replace('ó','').replace('ú','').replace('ñ','').replace('Ñ','').replace('°','').replace('·','').replace('²','').replace('Ÿ','').replace('©','').replace('®','').replace('À','').replace('Á','').replace('Â','').replace('Ã','').replace('Ä','').replace('Å','').replace('È','').replace('É','').replace('Ê','').replace('Ë','').replace('Ì','').replace('Í','').replace('Î','').replace('Ï','').replace('Ð','').replace('Ò','').replace('Ó','').replace('Ô','').replace('Õ','').replace('Ö','').replace('×','').replace('Ø','').replace('Ù','').replace('Ú','').replace('Û','').replace('Ü','').replace('Ý','').replace('Þ','').replace('ã','').replace('ð','').replace('õ','').replace(']','').replace('*','').replace(',','') for field in row]
+                                try:
+                                    updated_row = [
+                                        strip_string(field).replace("\r\n", " ").replace("\n", "").replace('€', '\\u20AC').replace('á', '\\u00E1').replace('Ä', '').replace('¢','').replace('ì','').replace('*','').replace(';','').replace(':','').replace('~','').replace('°','').replace('ß','').replace('ö','').replace('ô','').replace('ó','').replace('ò','').replace('Ç','').replace('ü','').replace('é','').replace('â','').replace('ä','').replace('à','').replace('å','').replace('ç','').replace('ê','').replace('ë','').replace('è','').replace('ï','').replace('î','').replace('ì','').replace('æ','').replace('Æ','').replace('ö','').replace('ò','').replace('û','').replace('ù','').replace('ÿ','').replace('¢','').replace('£','').replace('¥','').replace('ƒ','').replace('á','').replace('í','').replace('ó','').replace('ú','').replace('ñ','').replace('Ñ','').replace('°','').replace('·','').replace('²','').replace('Ÿ','').replace('©','').replace('®','').replace('À','').replace('Á','').replace('Â','').replace('Ã','').replace('Ä','').replace('Å','').replace('È','').replace('É','').replace('Ê','').replace('Ë','').replace('Ì','').replace('Í','').replace('Î','').replace('Ï','').replace('Ð','').replace('Ò','').replace('Ó','').replace('Ô','').replace('Õ','').replace('Ö','').replace('×','').replace('Ø','').replace('Ù','').replace('Ú','').replace('Û','').replace('Ü','').replace('Ý','').replace('Þ','').replace('ã','').replace('ð','').replace('õ','').replace(']','').replace('*','').replace(',','') for field in row]
 
-                                data.append(updated_row)
+                                    data.append(updated_row)
+                                except UnicodeDecodeError:
+                                    data.append(row)
+                                    continue
                         
                         # with fileinput.FileInput(files=local_filepath, inplace=True, mode='rU') as file:
-                        with open(local_filepath, "w", newline='') as myfile:
+                        with open(local_filepath, "w", newline='', errors='ignore') as myfile:
 
                             writer = csv.writer(myfile)
                             for row in data:
@@ -222,7 +235,7 @@ def track_3():
             time.sleep(10)  # Adjust the sleep time as per your requirements
 
 def track_4():
-    print(">>>>>>>>>> function 3 is running...")
+    print(">>>>>>>>>> function 4 is running...")
     cnopts = pysftp.CnOpts()
     cnopts.hostkeys = None  # Disable host key verification
     with pysftp.Connection(
@@ -256,16 +269,20 @@ def track_4():
                         sftp.get(remote_filepath, local_filepath)
                         
                         data = []
-                        with open(local_filepath, "r") as file:
+                        with open(local_filepath, "r", errors='ignore') as file:
                             reader = csv.reader(file)
                             for row in reader:
-                                updated_row = [
-                                    strip_string(field).replace("\r\n", " ").replace("\n", "").replace('€', '\\u20AC').replace('á', '\\u00E1').replace('Ä', '').replace('¢','').replace('ì','').replace('*','').replace(';','').replace(':','').replace('~','').replace('°','').replace('ß','').replace('ö','').replace('ô','').replace('ó','').replace('ò','').replace('Ç','').replace('ü','').replace('é','').replace('â','').replace('ä','').replace('à','').replace('å','').replace('ç','').replace('ê','').replace('ë','').replace('è','').replace('ï','').replace('î','').replace('ì','').replace('æ','').replace('Æ','').replace('ö','').replace('ò','').replace('û','').replace('ù','').replace('ÿ','').replace('¢','').replace('£','').replace('¥','').replace('ƒ','').replace('á','').replace('í','').replace('ó','').replace('ú','').replace('ñ','').replace('Ñ','').replace('°','').replace('·','').replace('²','').replace('Ÿ','').replace('©','').replace('®','').replace('À','').replace('Á','').replace('Â','').replace('Ã','').replace('Ä','').replace('Å','').replace('È','').replace('É','').replace('Ê','').replace('Ë','').replace('Ì','').replace('Í','').replace('Î','').replace('Ï','').replace('Ð','').replace('Ò','').replace('Ó','').replace('Ô','').replace('Õ','').replace('Ö','').replace('×','').replace('Ø','').replace('Ù','').replace('Ú','').replace('Û','').replace('Ü','').replace('Ý','').replace('Þ','').replace('ã','').replace('ð','').replace('õ','').replace(']','').replace('*','').replace(',','') for field in row]
+                                try:
+                                    updated_row = [
+                                        strip_string(field).replace("\r\n", " ").replace("\n", "").replace('€', '\\u20AC').replace('á', '\\u00E1').replace('Ä', '').replace('¢','').replace('ì','').replace('*','').replace(';','').replace(':','').replace('~','').replace('°','').replace('ß','').replace('ö','').replace('ô','').replace('ó','').replace('ò','').replace('Ç','').replace('ü','').replace('é','').replace('â','').replace('ä','').replace('à','').replace('å','').replace('ç','').replace('ê','').replace('ë','').replace('è','').replace('ï','').replace('î','').replace('ì','').replace('æ','').replace('Æ','').replace('ö','').replace('ò','').replace('û','').replace('ù','').replace('ÿ','').replace('¢','').replace('£','').replace('¥','').replace('ƒ','').replace('á','').replace('í','').replace('ó','').replace('ú','').replace('ñ','').replace('Ñ','').replace('°','').replace('·','').replace('²','').replace('Ÿ','').replace('©','').replace('®','').replace('À','').replace('Á','').replace('Â','').replace('Ã','').replace('Ä','').replace('Å','').replace('È','').replace('É','').replace('Ê','').replace('Ë','').replace('Ì','').replace('Í','').replace('Î','').replace('Ï','').replace('Ð','').replace('Ò','').replace('Ó','').replace('Ô','').replace('Õ','').replace('Ö','').replace('×','').replace('Ø','').replace('Ù','').replace('Ú','').replace('Û','').replace('Ü','').replace('Ý','').replace('Þ','').replace('ã','').replace('ð','').replace('õ','').replace(']','').replace('*','').replace(',','') for field in row]
 
-                                data.append(updated_row)
+                                    data.append(updated_row)
+                                except UnicodeEncodeError:
+                                    data.append(row)
+                                    continue
                         
                         # with fileinput.FileInput(files=local_filepath, inplace=True, mode='rU') as file:
-                        with open(local_filepath, "w", newline='') as myfile:
+                        with open(local_filepath, "w", newline='', errors='ignore') as myfile:
 
                             writer = csv.writer(myfile)
                             for row in data:
@@ -285,7 +302,7 @@ def track_4():
                         # Perform further processing on the downloaded file if needed
                 else:
                     print("    >> extra files ", filename)
-            print("len(email3.attachments) ", len(email4.attachments))
+            print("len(email4.attachments) ", len(email4.attachments))
             if len(email4.attachments) > 0:
                 print(" XXXX email sent XXXXX ")
                 email4.send()
