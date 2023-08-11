@@ -16,38 +16,39 @@ def strip_string(string):
     return ''.join(string.splitlines())
 
 def track_1():
-    cnopts = pysftp.CnOpts()
-    cnopts.hostkeys = None  # Disable host key verification
-    with pysftp.Connection(
-        settings.SFTP_HOST,
-        username=settings.SFTP_USERNAME,
-        password=settings.SFTP_PASSWORD,
-        cnopts=cnopts
-    ) as sftp:
-        sftp.cwd(settings.SFTP_REMOTE_DIR)
+    print("> tracking for sftp1 startings...")
+    while True:
+        email = EmailMessage(
+            subject='OneSource',
+            body='New File Received',
+            from_email='pete@capitalsconsulting.com',
+            to=['distributorsubmission@k-1c80vq6gka4vsdayfbc3rszgm8s46rwd2iyub7xcjmeakewsxj.46-zomweai.na210.apex.salesforce.com'],
+        )
+        
+        cnopts = pysftp.CnOpts()
+        cnopts.hostkeys = None  # Disable host key verification
+        with pysftp.Connection(
+            settings.SFTP_HOST,
+            username=settings.SFTP_USERNAME,
+            password=settings.SFTP_PASSWORD,
+            cnopts=cnopts
+        ) as sftp:
+            sftp.cwd(settings.SFTP_REMOTE_DIR)
 
-        while True:
-            email = EmailMessage(
-                subject='OneSource',
-                body='New File Received',
-                from_email='pete@capitalsconsulting.com',
-                to=['distributorsubmission@k-1c80vq6gka4vsdayfbc3rszgm8s46rwd2iyub7xcjmeakewsxj.46-zomweai.na210.apex.salesforce.com'],
-            )
             files = sftp.listdir()
             for filename in files:
                 
                 if filename not in ['.', '..'] and filename.find('.csv') != -1:
-                    print("> csv file ", filename)
+                    print("> new file detection on sftp1: ", filename)
                     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     
                     local_filepath = os.path.join(settings.MEDIA_ROOT, filename)
                     remote_filepath = os.path.join(sftp.getcwd(), filename)
                     new_remote_filepath = os.path.join(sftp.getcwd()+"processed/", filename[:-4]+now+'.csv')
-                    print(" new_remote_filepath ", new_remote_filepath)
+                    # print(" new_remote_filepath ", new_remote_filepath)
                     if not os.path.exists(local_filepath):  # Download only if the file doesn't exist locally
-                        print("> email sending...")
+                        print("> file attaching from sftp1...")
                         sftp.get(remote_filepath, local_filepath)
-                        
                         data = []
                         with open(local_filepath, 'r', errors='ignore') as file:
                             reader = csv.reader(file)
@@ -71,45 +72,48 @@ def track_1():
                         os.remove(local_filepath)
                         sftp.rename(remote_filepath, new_remote_filepath)
                         # Perform further processing on the downloaded file if needed
-                else:
-                    print("> extra files ", filename)
-            if len(email.attachments) > 0:
-                email.send()
-            # Sleep for some time before checking for new files again
-            time.sleep(10)  # Adjust the sleep time as per your requirements
+                # else:
+                #     print("> extra files ", filename)
+            sftp.close()
+        if len(email.attachments) > 0:
+            email.send()
+            print("> attached files ", len(email.attachments), " email for sftp1 sent")
+        # Sleep for some time before checking for new files again
+        time.sleep(10)  # Adjust the sleep time as per your requirements
 
 def track_2():
-    print(">>>>>>>>>> function 2 is running...")
-    cnopts = pysftp.CnOpts()
-    cnopts.hostkeys = None  # Disable host key verification
-    with pysftp.Connection(
-        settings.SFTP_HOST2,
-        username=settings.SFTP_USERNAME2,
-        password=settings.SFTP_PASSWORD2,
-        cnopts=cnopts
-    ) as sftp:
-        sftp.cwd(settings.SFTP_REMOTE_DIR2)
+    print("  > tracking for sftp2 starting")
+    while True:
+        email2 = EmailMessage(
+            subject='Edwards',
+            body='New File Received',
+            from_email='pete@capitalsconsulting.com',
+            to=['distributorsubmission@k-1c80vq6gka4vsdayfbc3rszgm8s46rwd2iyub7xcjmeakewsxj.46-zomweai.na210.apex.salesforce.com'],
+        )
+        cnopts = pysftp.CnOpts()
+        cnopts.hostkeys = None  # Disable host key verification
+        with pysftp.Connection(
+            settings.SFTP_HOST2,
+            username=settings.SFTP_USERNAME2,
+            password=settings.SFTP_PASSWORD2,
+            cnopts=cnopts
+        ) as sftp:
+            sftp.cwd(settings.SFTP_REMOTE_DIR2)
 
-        while True:
             files = sftp.listdir()
-            email2 = EmailMessage(
-                subject='Edwards',
-                body='New File Received',
-                from_email='pete@capitalsconsulting.com',
-                to=['distributorsubmission@k-1c80vq6gka4vsdayfbc3rszgm8s46rwd2iyub7xcjmeakewsxj.46-zomweai.na210.apex.salesforce.com'],
-            )
+        
 
             for filename in files:
                 
                 if filename not in ['.', '..'] and filename.find('.csv') != -1:
-                    print("  >> csv file ", filename)
+                    print("  > new file detection on sftp2: ", filename)
                     local_filepath = os.path.join(settings.MEDIA_ROOT2, filename)
                     remote_filepath = os.path.join(sftp.getcwd(), filename)
 
                     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                   
+                    
                     if not os.path.exists(local_filepath):  # Download only if the file doesn't exist locally
-                        print("  >> email sending...")
+                        print("> file attaching from sftp2...")
                         sftp.get(remote_filepath, local_filepath)
                         sftp.remove(remote_filepath)
 
@@ -123,8 +127,8 @@ def track_2():
 
                                     data.append(updated_row)
                                 except UnicodeDecodeError:
-                                   data.append(row)
-                                   continue
+                                    data.append(row)
+                                    continue
                         
                         # with fileinput.FileInput(files=local_filepath, inplace=True, mode='rU') as file:
                         with open(local_filepath, "w", newline='', errors='ignore') as myfile:
@@ -134,7 +138,6 @@ def track_2():
                                 writer.writerow(row)
 
                         email2.attach_file(local_filepath)
-
                         
                         # sftp.remove(remote_filepath)
                         # sftp.rename(remote_filepath, new_remote_filepath)
@@ -151,48 +154,50 @@ def track_2():
                         sftp3.close()
                         # Perform further processing on the downloaded file if needed
                         os.remove(local_filepath)
-                else:
-                    print("  >> extra files ", filename)
+                    # else:
+                    #     print("  >> extra files ", filename)
+            sftp.close()
+        if len(email2.attachments) > 0:
+            email2.send()
+            print("  > attached fles ", len(email2.attachments), " email for sftp2 sent")
             
-            if len(email2.attachments) > 0:
-                email2.send()
-            # Sleep for some time before checking for new files again
-            time.sleep(10)  # Adjust the sleep time as per your requirements
+        # Sleep for some time before checking for new files again
+        time.sleep(10)  # Adjust the sleep time as per your requirements
 
 def track_3():
-    print(">>>>>>>>>> function 3 is running...")
-    cnopts = pysftp.CnOpts()
-    cnopts.hostkeys = None  # Disable host key verification
-    with pysftp.Connection(
-        settings.SFTP_HOST3,
-        username=settings.SFTP_USERNAME3,
-        password=settings.SFTP_PASSWORD3,
-        cnopts=cnopts
-    ) as sftp:
-        sftp.cwd(settings.SFTP_REMOTE_DIR3)
+    print("    > tracking for sftp3 starting...")
 
-        while True:
-            email3 = EmailMessage(
-                subject='Byram',
-                body='New File Received',
-                from_email='pete@capitalsconsulting.com',
-                to=['distributorsubmission@k-1c80vq6gka4vsdayfbc3rszgm8s46rwd2iyub7xcjmeakewsxj.46-zomweai.na210.apex.salesforce.com'],
-            )
+    while True:
+        email3 = EmailMessage(
+            subject='Byram',
+            body='New File Received',
+            from_email='pete@capitalsconsulting.com',
+            to=['distributorsubmission@k-1c80vq6gka4vsdayfbc3rszgm8s46rwd2iyub7xcjmeakewsxj.46-zomweai.na210.apex.salesforce.com'],
+        )
+        cnopts = pysftp.CnOpts()
+        cnopts.hostkeys = None  # Disable host key verification
+        with pysftp.Connection(
+            settings.SFTP_HOST3,
+            username=settings.SFTP_USERNAME3,
+            password=settings.SFTP_PASSWORD3,
+            cnopts=cnopts
+        ) as sftp:
+            sftp.cwd(settings.SFTP_REMOTE_DIR3)
             files = sftp.listdir()
+
             for filename in files:
                 
                 if filename not in ['.', '..'] and filename.find('.csv') != -1:
-                    print("    >> csv file ", filename)
+                    print("    >> new file detection on sftp3 : ", filename)
 
                     local_filepath = os.path.join(settings.MEDIA_ROOT3, filename)
                     remote_filepath = os.path.join(sftp.getcwd(), filename)
 
                     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     new_remote_filepath = os.path.join(sftp.getcwd()+"/../processed_byram/", filename[:-4]+" "+now+'.csv')
-                    if not os.path.exists(local_filepath):  # Download only if the file doesn't exist locally
-                        print("    >> email sending...")
+                    if not os.path.exists(local_filepath):
+                        print("> file attaching from sftp3...")
                         sftp.get(remote_filepath, local_filepath)
-                        
                         data = []
                         with open(local_filepath, "r", errors='ignore') as file:
                             reader = csv.reader(file)
@@ -225,39 +230,38 @@ def track_3():
                         print(" new sftp path ", new_remote_filepath)
                         sftp.rename(remote_filepath, new_remote_filepath)
                         # Perform further processing on the downloaded file if needed
-                else:
-                    print("    >> extra files ", filename)
-            print("len(email3.attachments) ", len(email3.attachments))
-            if len(email3.attachments) > 0:
-                print(" XXXX email sent XXXXX ")
-                email3.send()
-            # Sleep for some time before checking for new files again
-            time.sleep(10)  # Adjust the sleep time as per your requirements
+                # else:
+                #     print("    >> extra files ", filename)
+            sftp.close()
+        if len(email3.attachments) > 0:
+            email3.send()
+            print("      > attached files ", len(email3.attachments), " eamil for sftp3 sent")
+        # Sleep for some time before checking for new files again
+        time.sleep(10)  # Adjust the sleep time as per your requirements
 
 def track_4():
-    print(">>>>>>>>>> function 4 is running...")
-    cnopts = pysftp.CnOpts()
-    cnopts.hostkeys = None  # Disable host key verification
-    with pysftp.Connection(
-        settings.SFTP_HOST3,
-        username=settings.SFTP_USERNAME3,
-        password=settings.SFTP_PASSWORD3,
-        cnopts=cnopts
-    ) as sftp:
-        sftp.cwd(settings.SFTP_REMOTE_DIR4)
+    print("      > tracking for sftp4 starting...")
 
-        while True:
-            email4 = EmailMessage(
-                subject='Premier Kids',
-                body='New File Received',
-                from_email='pete@capitalsconsulting.com',
-                to=['distributorsubmission@k-1c80vq6gka4vsdayfbc3rszgm8s46rwd2iyub7xcjmeakewsxj.46-zomweai.na210.apex.salesforce.com'],
-            )
+    while True:
+        email4 = EmailMessage(
+            subject='Premier Kids',
+            body='New File Received',
+            from_email='pete@capitalsconsulting.com',
+            to=['distributorsubmission@k-1c80vq6gka4vsdayfbc3rszgm8s46rwd2iyub7xcjmeakewsxj.46-zomweai.na210.apex.salesforce.com'],
+        )
+        cnopts = pysftp.CnOpts()
+        cnopts.hostkeys = None  # Disable host key verification
+        with pysftp.Connection(
+            settings.SFTP_HOST3,
+            username=settings.SFTP_USERNAME3,
+            password=settings.SFTP_PASSWORD3,
+            cnopts=cnopts
+        ) as sftp:
+            sftp.cwd(settings.SFTP_REMOTE_DIR4)
             files = sftp.listdir()
             for filename in files:
-                
                 if filename not in ['.', '..'] and filename.find('.csv') != -1:
-                    print("    >> csv file ", filename)
+                    print("      >> new file detection for sftp4: ", filename)
 
                     local_filepath = os.path.join(settings.MEDIA_ROOT3, filename)
                     remote_filepath = os.path.join(sftp.getcwd(), filename)
@@ -265,9 +269,8 @@ def track_4():
                     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     new_remote_filepath = os.path.join(sftp.getcwd()+"/../processed_premierkids/", filename[:-4]+" "+now+'.csv')
                     if not os.path.exists(local_filepath):  # Download only if the file doesn't exist locally
-                        print("    >> email sending...")
+                        print("> file attaching from sftp4...")
                         sftp.get(remote_filepath, local_filepath)
-                        
                         data = []
                         with open(local_filepath, "r", errors='ignore') as file:
                             reader = csv.reader(file)
@@ -300,14 +303,14 @@ def track_4():
                         print(" new sftp path ", new_remote_filepath)
                         sftp.rename(remote_filepath, new_remote_filepath)
                         # Perform further processing on the downloaded file if needed
-                else:
-                    print("    >> extra files ", filename)
+                # else:
+                #     print("    >> extra files ", filename)
+            sftp.close()
+        if len(email4.attachments) > 0:
+            email4.send()
             print("len(email4.attachments) ", len(email4.attachments))
-            if len(email4.attachments) > 0:
-                print(" XXXX email sent XXXXX ")
-                email4.send()
-            # Sleep for some time before checking for new files again
-            time.sleep(10)  # Adjust the sleep time as per your requirements
+        # Sleep for some time before checking for new files again
+        time.sleep(10)  # Adjust the sleep time as per your requirements
 
 # @background(schedule=1)
 def monitor_sftp_server():
