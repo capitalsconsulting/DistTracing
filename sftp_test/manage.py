@@ -65,7 +65,7 @@ def track_1():
                                 print("> file attaching from sftp1...")
                                 sftp.get(remote_filepath, local_filepath)
                                 data = []
-                                with open(local_filepath, 'r', errors='ignore') as file:
+                                with open(local_filepath, 'r', errors='ignore', encoding='utf-8') as file:
                                     reader = csv.reader(file)
 
                                     for row in reader:
@@ -77,7 +77,7 @@ def track_1():
                                             data.append(row)
                                             continue
 
-                                with open(local_filepath, "w", newline='', errors='ignore') as myfile:
+                                with open(local_filepath, "w", newline='', errors='ignore', encoding='utf-8') as myfile:
 
                                     writer = csv.writer(myfile)
                                     for row in data:
@@ -137,7 +137,7 @@ def track_2():
                                 
 
                                 data = []
-                                with open(local_filepath, "r", errors='ignore') as file:
+                                with open(local_filepath, "r", errors='ignore', encoding='utf-8') as file:
                                     reader = csv.reader(file)
                                     for row in reader:
                                         try:
@@ -150,7 +150,7 @@ def track_2():
                                             continue
                                 
                                 # with fileinput.FileInput(files=local_filepath, inplace=True, mode='rU') as file:
-                                with open(local_filepath, "w", newline='', errors='ignore') as myfile:
+                                with open(local_filepath, "w", newline='', errors='ignore', encoding='utf-8') as myfile:
 
                                     writer = csv.writer(myfile)
                                     for row in data:
@@ -225,7 +225,7 @@ def track_3():
                                 print("> file attaching from sftp3...")
                                 sftp.get(remote_filepath, local_filepath)
                                 data = []
-                                with open(local_filepath, "r", errors='ignore') as file:
+                                with open(local_filepath, "r", errors='ignore', encoding='utf-8') as file:
                                     reader = csv.reader(file)
                                     for row in reader:
                                         try:
@@ -238,7 +238,7 @@ def track_3():
                                             continue
                                 
                                 # with fileinput.FileInput(files=local_filepath, inplace=True, mode='rU') as file:
-                                with open(local_filepath, "w", newline='', errors='ignore') as myfile:
+                                with open(local_filepath, "w", newline='', errors='ignore', encoding='utf-8') as myfile:
 
                                     writer = csv.writer(myfile)
                                     for row in data:
@@ -304,7 +304,7 @@ def track_4():
                                 print("> file attaching from sftp4...")
                                 sftp.get(remote_filepath, local_filepath)
                                 data = []
-                                with open(local_filepath, "r", errors='ignore') as file:
+                                with open(local_filepath, "r", errors='ignore', encoding='utf-8') as file:
                                     reader = csv.reader(file)
                                     for row in reader:
                                         try:
@@ -317,7 +317,7 @@ def track_4():
                                             continue
                                 
                                 # with fileinput.FileInput(files=local_filepath, inplace=True, mode='rU') as file:
-                                with open(local_filepath, "w", newline='', errors='ignore') as myfile:
+                                with open(local_filepath, "w", newline='', errors='ignore', encoding='utf-8') as myfile:
 
                                     writer = csv.writer(myfile)
                                     for row in data:
@@ -385,7 +385,7 @@ def track_5():
                                 print("> file attaching from sftp5...")
                                 sftp.get(remote_filepath, local_filepath)
                                 data = []
-                                with open(local_filepath, "r", errors='ignore') as file:
+                                with open(local_filepath, "r", errors='ignore', encoding='utf-8') as file:
                                     reader = csv.reader(file)
                                     for row in reader:
                                         try:
@@ -398,7 +398,7 @@ def track_5():
                                             continue
                                 
                                 # with fileinput.FileInput(files=local_filepath, inplace=True, mode='rU') as file:
-                                with open(local_filepath, "w", newline='', errors='ignore') as myfile:
+                                with open(local_filepath, "w", newline='', errors='ignore', encoding='utf-8') as myfile:
 
                                     writer = csv.writer(myfile)
                                     for row in data:
