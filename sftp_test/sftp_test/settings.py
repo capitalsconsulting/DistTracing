@@ -140,15 +140,16 @@ SFTP_HOST3 = 'sftpsalesforce.blob.core.windows.net'
 SFTP_USERNAME3 = 'sftpsalesforce.sftpsalesforce'
 SFTP_PASSWORD3 = '1NQjRsyN5DXsOK2fp8s9IqmcgFwKqq4g'
 SFTP_REMOTE_DIR3 = '/Byram/'
-
-
 SFTP_REMOTE_DIR4 = '/PremierKids/'
+SFTP_REMOTE_DIR5 = '/CCS/'
 
 MEDIA_ROOT='/home/ubuntu/sftp-files'
 
 MEDIA_ROOT2='/home/ubuntu/sftp-files2'
 
 MEDIA_ROOT3='/home/ubuntu/sftp-files3'
+MEDIA_ROOT4='/home/ubuntu/sftp-files4'
+MEDIA_ROOT5='/home/ubuntu/sftp-files5'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
